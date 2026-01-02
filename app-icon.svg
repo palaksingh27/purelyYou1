@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <!-- Circle background -->
+  <circle cx="256" cy="256" r="256" fill="#0097FB"/>
+  
+  <!-- Light inner circle -->
+  <circle cx="256" cy="256" r="200" fill="#ffffff" opacity="0.9"/>
+  
+  <!-- Gradient overlay -->
+  <circle cx="256" cy="256" r="200" fill="url(#paint0_radial)" opacity="0.6"/>
+  
+  <!-- Flower/spa icon -->
+  <g transform="translate(128, 128) scale(0.5)">
+    <!-- First petal -->
+    <path d="M256 120C210 120 180 90 180 44C180 90 150 120 104 120C150 120 180 150 180 196C180 150 210 120 256 120Z" fill="#0097FB" stroke="white" stroke-width="8"/>
+    
+    <!-- Second petal -->
+    <path d="M256 392C210 392 180 362 180 316C180 362 150 392 104 392C150 392 180 422 180 468C180 422 210 392 256 392Z" fill="#0097FB" stroke="white" stroke-width="8"/>
+    
+    <!-- Third petal -->
+    <path d="M392 256C392 210 362 180 316 180C362 180 392 150 392 104C392 150 422 180 468 180C422 180 392 210 392 256Z" fill="#0097FB" stroke="white" stroke-width="8"/>
+    
+    <!-- Fourth petal -->
+    <path d="M120 256C120 210 150 180 196 180C150 180 120 150 120 104C120 150 90 180 44 180C90 180 120 210 120 256Z" fill="#0097FB" stroke="white" stroke-width="8"/>
+    
+    <!-- Center circle -->
+    <circle cx="256" cy="256" r="40" fill="#0097FB" stroke="white" stroke-width="8"/>
+  </g>
+  
+  <!-- Definitions for gradients -->
+  <defs>
+    <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256 256) rotate(90) scale(200)">
+      <stop offset="0" stop-color="#F5F5F5"/>
+      <stop offset="1" stop-color="#F5F5F5" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
