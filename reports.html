@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports - Admin Dashboard{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Admin Dashboard</h5>
+                        <div class="list-group">
+                            <a href="{{ url_for('admin_dashboard') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                            </a>
+                            <a href="{{ url_for('admin_products') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-pump-soap me-2"></i> Products
+                            </a>
+                            <a href="{{ url_for('admin_users') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-users me-2"></i> Users
+                            </a>
+                            <a href="{{ url_for('admin_orders') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-shopping-cart me-2"></i> Orders
+                            </a>
+                            <a href="{{ url_for('admin_inventory') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-boxes me-2"></i> Inventory
+                            </a>
+                            <a href="{{ url_for('admin_reviews') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-star me-2"></i> Reviews
+                            </a>
+                            <a href="{{ url_for('admin_reports') }}" class="list-group-item list-group-item-action active">
+                                <i class="fas fa-chart-bar me-2"></i> Reports
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Analytics & Reports</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Reports</li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Date Range Selector -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <form class="row g-3 align-items-center">
+                            <div class="col-md-6">
+                                <h5 class="mb-0">Date Range</h5>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="start-date" class="visually-hidden">Start Date</label>
+                                <input type="date" class="form-control" id="start-date" value="2025-02-28">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="end-date" class="visually-hidden">End Date</label>
+                                <input type="date" class="form-control" id="end-date" value="2025-03-28">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-info-circle me-2"></i> Advanced reporting features will be implemented soon. This is a preview of the interface.
+                </div>
+
+                <!-- Main Reports Row -->
+                <div class="row mb-4">
+                    <!-- Sales Overview -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Sales Overview</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-4 text-center">
+                                    <canvas id="salesChart" height="200"></canvas>
+                                </div>
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <h6 class="text-muted mb-1 small">Total Sales</h6>
+                                        <h4 class="mb-0">$9,854</h4>
+                                    </div>
+                                    <div class="col-4">
+                                        <h6 class="text-muted mb-1 small">Average Order</h6>
+                                        <h4 class="mb-0">$75.24</h4>
+                                    </div>
+                                    <div class="col-4">
+                                        <h6 class="text-muted mb-1 small">Conversion Rate</h6>
+                                        <h4 class="mb-0">4.2%</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Products -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Top Products</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="productChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <!-- User Activity -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">User Activity</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="userActivityChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skin Type Distribution -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Customer Skin Type Distribution</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="skinTypeChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports List -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Available Reports</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Sales Report</h6>
+                                    <p class="mb-0 small text-muted">Detailed breakdown of sales by product, category, and time period</p>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-download me-1"></i> Export
+                                </button>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Inventory Status</h6>
+                                    <p class="mb-0 small text-muted">Current stock levels, low stock alerts, and restock recommendations</p>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-download me-1"></i> Export
+                                </button>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Customer Analysis</h6>
+                                    <p class="mb-0 small text-muted">User demographics, purchase patterns, and skin profile data</p>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-download me-1"></i> Export
+                                </button>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Product Performance</h6>
+                                    <p class="mb-0 small text-muted">Sales trends, review scores, and performance metrics by product</p>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-download me-1"></i> Export
+                                </button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sample data for charts
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        const salesData = [2150, 1890, 2450, 2750, 3100, 2950];
+        
+        // Sales chart
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Sales ($)',
+                    data: salesData,
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Top products chart
+        const productsCtx = document.getElementById('productChart').getContext('2d');
+        new Chart(productsCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Hydrating Serum', 'Vitamin C Cream', 'Gentle Cleanser', 'SPF Moisturizer', 'Others'],
+                datasets: [{
+                    data: [30, 22, 18, 15, 15],
+                    backgroundColor: [
+                        '#0d6efd',
+                        '#20c997',
+                        '#fd7e14',
+                        '#6f42c1',
+                        '#adb5bd'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+        
+        // User activity chart
+        const userCtx = document.getElementById('userActivityChart').getContext('2d');
+        new Chart(userCtx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'New Users',
+                    data: [45, 38, 65, 75, 82, 68],
+                    backgroundColor: '#20c997'
+                }, {
+                    label: 'Active Users',
+                    data: [120, 110, 130, 150, 180, 170],
+                    backgroundColor: '#0d6efd'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Skin type distribution chart
+        const skinTypeCtx = document.getElementById('skinTypeChart').getContext('2d');
+        new Chart(skinTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Dry', 'Oily', 'Combination', 'Normal', 'Sensitive'],
+                datasets: [{
+                    data: [25, 30, 20, 15, 10],
+                    backgroundColor: [
+                        '#6f42c1',
+                        '#fd7e14',
+                        '#20c997',
+                        '#0d6efd',
+                        '#dc3545'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

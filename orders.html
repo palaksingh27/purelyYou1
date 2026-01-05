@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Management - Admin Dashboard{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Admin Dashboard</h5>
+                        <div class="list-group">
+                            <a href="{{ url_for('admin_dashboard') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                            </a>
+                            <a href="{{ url_for('admin_products') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-pump-soap me-2"></i> Products
+                            </a>
+                            <a href="{{ url_for('admin_users') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-users me-2"></i> Users
+                            </a>
+                            <a href="{{ url_for('admin_orders') }}" class="list-group-item list-group-item-action active">
+                                <i class="fas fa-shopping-cart me-2"></i> Orders
+                            </a>
+                            <a href="{{ url_for('admin_inventory') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-boxes me-2"></i> Inventory
+                            </a>
+                            <a href="{{ url_for('admin_reviews') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-star me-2"></i> Reviews
+                            </a>
+                            <a href="{{ url_for('admin_reports') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-chart-bar me-2"></i> Reports
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Order Management</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Orders</li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="d-flex align-items-center justify-content-center mb-3">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                                        <i class="fas fa-shopping-cart text-primary fa-2x"></i>
+                                    </div>
+                                </div>
+                                <h3 class="fw-bold mb-1">{{ stats.total_orders }}</h3>
+                                <p class="text-muted small mb-0">Total Orders</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="d-flex align-items-center justify-content-center mb-3">
+                                    <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                                        <i class="fas fa-check-circle text-success fa-2x"></i>
+                                    </div>
+                                </div>
+                                <h3 class="fw-bold mb-1">{{ stats.completed_orders }}</h3>
+                                <p class="text-muted small mb-0">Completed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="d-flex align-items-center justify-content-center mb-3">
+                                    <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                                        <i class="fas fa-clock text-warning fa-2x"></i>
+                                    </div>
+                                </div>
+                                <h3 class="fw-bold mb-1">{{ stats.pending_orders }}</h3>
+                                <p class="text-muted small mb-0">Pending</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="d-flex align-items-center justify-content-center mb-3">
+                                    <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                                        <i class="fas fa-dollar-sign text-info fa-2x"></i>
+                                    </div>
+                                </div>
+                                <h3 class="fw-bold mb-1">${{ stats.total_revenue }}</h3>
+                                <p class="text-muted small mb-0">Total Revenue</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Recent Orders</h5>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-download me-1"></i> Export
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Search and Filters -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Search by order ID or customer...">
+                                    <button class="btn btn-primary" type="button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="processing">Processing</option>
+                                    <option value="shipped">Shipped</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select">
+                                    <option value="recent">Most Recent</option>
+                                    <option value="oldest">Oldest First</option>
+                                    <option value="highest">Highest Value</option>
+                                    <option value="lowest">Lowest Value</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle me-2"></i> Order management features will be implemented soon. This is a preview of the interface.
+                        </div>
+
+                        <!-- Orders Table -->
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Order ID</th>
+                                        <th scope="col">Customer</th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Items</th>
+                                        <th scope="col">Total</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in sample_orders %}
+                                    <tr>
+                                        <td>
+                                            <span class="fw-medium">#{{ order.id }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-placeholder bg-primary bg-opacity-10 text-primary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px">
+                                                    {{ order.customer.username[0]|upper }}
+                                                </div>
+                                                <div>
+                                                    {{ order.customer.username }}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ order.date }}</td>
+                                        <td>
+                                            {% if order.status == 'completed' %}
+                                            <span class="badge bg-success">Completed</span>
+                                            {% elif order.status == 'processing' %}
+                                            <span class="badge bg-primary">Processing</span>
+                                            {% elif order.status == 'pending' %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                            {% elif order.status == 'shipped' %}
+                                            <span class="badge bg-info">Shipped</span>
+                                            {% elif order.status == 'cancelled' %}
+                                            <span class="badge bg-danger">Cancelled</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ order.items }} items</td>
+                                        <td>${{ order.total }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <nav aria-label="Orders pagination" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">Previous</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

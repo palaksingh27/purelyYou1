@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+
+{% block title %}User Management - Admin Dashboard{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Admin Dashboard</h5>
+                        <div class="list-group">
+                            <a href="{{ url_for('admin_dashboard') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                            </a>
+                            <a href="{{ url_for('admin_products') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-pump-soap me-2"></i> Products
+                            </a>
+                            <a href="{{ url_for('admin_users') }}" class="list-group-item list-group-item-action active">
+                                <i class="fas fa-users me-2"></i> Users
+                            </a>
+                            <a href="{{ url_for('admin_orders') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-shopping-cart me-2"></i> Orders
+                            </a>
+                            <a href="{{ url_for('admin_inventory') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-boxes me-2"></i> Inventory
+                            </a>
+                            <a href="{{ url_for('admin_reviews') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-star me-2"></i> Reviews
+                            </a>
+                            <a href="{{ url_for('admin_reports') }}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-chart-bar me-2"></i> Reports
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3">User Management</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Users</li>
+                        </ol>
+                    </nav>
+                </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Users</h6>
+                            <h3 class="mb-0">{{ stats.total_users }}</h3>
+                        </div>
+                        <div class="text-primary fs-1">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">{{ stats.total_admins }} admin accounts</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-1">Newsletter Subscribers</h6>
+                            <h3 class="mb-0">{{ stats.newsletter_subscribers }}</h3>
+                        </div>
+                        <div class="text-success fs-1">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">{{ (stats.newsletter_subscribers / stats.total_users * 100)|round|int }}% of users</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-1">New Users (30 days)</h6>
+                            <h3 class="mb-0">{{ stats.recent_signups }}</h3>
+                        </div>
+                        <div class="text-info fs-1">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">{{ (stats.recent_signups / stats.total_users * 100)|round|int }}% growth rate</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Data Analysis -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">User Skin Type Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Skin Type</th>
+                                    <th>Users</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for skin_type, count in skin_type_counts %}
+                                <tr>
+                                    <td>{{ skin_type|capitalize }}</td>
+                                    <td>{{ count }}</td>
+                                    <td>{{ (count / stats.users_with_skin_data * 100)|round|int }}%</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No skin type data available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">User Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Users with Skin Data</h6>
+                        <div class="progress" style="height: 20px;">
+                            {% set skin_data_percent = (stats.users_with_skin_data / stats.total_users * 100)|round|int %}
+                            <div class="progress-bar bg-info" role="progressbar" style="width: {{ skin_data_percent }}%;" aria-valuenow="{{ skin_data_percent }}" aria-valuemin="0" aria-valuemax="100">{{ skin_data_percent }}%</div>
+                        </div>
+                        <small class="text-muted">{{ stats.users_with_skin_data }} of {{ stats.total_users }} users</small>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Newsletter Subscribers</h6>
+                        <div class="progress" style="height: 20px;">
+                            {% set newsletter_percent = (stats.newsletter_subscribers / stats.total_users * 100)|round|int %}
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ newsletter_percent }}%;" aria-valuenow="{{ newsletter_percent }}" aria-valuemin="0" aria-valuemax="100">{{ newsletter_percent }}%</div>
+                        </div>
+                        <small class="text-muted">{{ stats.newsletter_subscribers }} of {{ stats.total_users }} users</small>
+                    </div>
+                    <div>
+                        <h6>Admin Accounts</h6>
+                        <div class="progress" style="height: 20px;">
+                            {% set admin_percent = (stats.total_admins / stats.total_users * 100)|round|int %}
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ admin_percent }}%;" aria-valuenow="{{ admin_percent }}" aria-valuemin="0" aria-valuemax="100">{{ admin_percent }}%</div>
+                        </div>
+                        <small class="text-muted">{{ stats.total_admins }} of {{ stats.total_users }} users</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Listing -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">User List</h5>
+            <div>
+                <a href="#" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-download me-1"></i> Export
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Search and Filters -->
+            <form class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="search" placeholder="Search users..." value="{{ request.args.get('search', '') }}">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="role">
+                        <option value="">All Roles</option>
+                        <option value="admin" {% if request.args.get('role') == 'admin' %}selected{% endif %}>Admins</option>
+                        <option value="user" {% if request.args.get('role') == 'user' %}selected{% endif %}>Regular Users</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="newsletter">
+                        <option value="">All Newsletter Status</option>
+                        <option value="subscribed" {% if request.args.get('newsletter') == 'subscribed' %}selected{% endif %}>Subscribed</option>
+                        <option value="unsubscribed" {% if request.args.get('newsletter') == 'unsubscribed' %}selected{% endif %}>Unsubscribed</option>
+                    </select>
+                </div>
+            </form>
+            
+            <!-- User Table -->
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">User</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Joined</th>
+                            <th scope="col">Skin Data</th>
+                            <th scope="col">Newsletter</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <th scope="row">{{ user.id }}</th>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-placeholder bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px">
+                                        {{ user.username[0].upper() }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ user.username }}</div>
+                                        {% if user.first_name or user.last_name %}
+                                        <small class="text-muted">{{ user.first_name }} {{ user.last_name }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% if user.is_admin %}
+                                <span class="badge bg-primary">Admin</span>
+                                {% else %}
+                                <span class="badge bg-secondary">User</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user.date_joined.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% if user.skin_type %}
+                                <span class="badge bg-success">Yes</span>
+                                {% else %}
+                                <span class="badge bg-light text-dark">No</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.receive_newsletter %}
+                                <i class="fas fa-check-circle text-success"></i>
+                                {% else %}
+                                <i class="fas fa-times-circle text-muted"></i>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">View Details</a></li>
+                                        {% if not user.is_admin %}
+                                        <li>
+                                            <form action="{{ url_for('make_admin', user_id=user.id) }}" method="POST" style="display: inline;">
+                                                {{ csrf_token() | safe }}
+                                                <button type="submit" class="dropdown-item">Make Admin</button>
+                                            </form>
+                                        </li>
+                                        {% endif %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="#">Reset Password</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                No users found. Try adjusting your search filters.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if total_pages > 1 %}
+            <nav aria-label="User pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if page == 1 %}disabled{% endif %}">
+                        <a class="page-link" href="?page={{ page - 1 }}&search={{ request.args.get('search', '') }}&role={{ request.args.get('role', '') }}&newsletter={{ request.args.get('newsletter', '') }}">Previous</a>
+                    </li>
+                    {% for p in range(1, total_pages + 1) %}
+                    <li class="page-item {% if p == page %}active{% endif %}">
+                        <a class="page-link" href="?page={{ p }}&search={{ request.args.get('search', '') }}&role={{ request.args.get('role', '') }}&newsletter={{ request.args.get('newsletter', '') }}">{{ p }}</a>
+                    </li>
+                    {% endfor %}
+                    <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+                        <a class="page-link" href="?page={{ page + 1 }}&search={{ request.args.get('search', '') }}&role={{ request.args.get('role', '') }}&newsletter={{ request.args.get('newsletter', '') }}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
