@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Selfie Analysis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="text-center mb-5">
+                <h1>Selfie Analysis</h1>
+                <p class="lead">Take a selfie and get personalized product recommendations based on your unique features</p>
+            </div>
+            
+            <!-- Camera Section -->
+            <div id="camera-container">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Take Your Selfie</h5>
+                        <p id="camera-status" class="card-text text-muted mb-3">Requesting camera access...</p>
+                        
+                        <div class="position-relative">
+                            <video id="camera-stream" autoplay playsinline style="display: none;"></video>
+                            <canvas id="capture-canvas" style="display: none;"></canvas>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button id="capture-button" class="btn btn-primary" style="display: none;">
+                                <i class="fas fa-camera me-2"></i>Take Selfie
+                            </button>
+                            
+                            <button id="retake-button" class="btn btn-secondary me-2" style="display: none;">
+                                <i class="fas fa-redo me-2"></i>Retake
+                            </button>
+                            
+                            <button id="analyze-button" class="btn btn-primary" style="display: none;">
+                                <i class="fas fa-magic me-2"></i>Analyze
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading indicator -->
+                <div id="loading-indicator" class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Analyzing your selfie...</p>
+                </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div id="result-container">
+                <div id="skin-analysis"></div>
+                <div id="product-recommendations" class="mt-4"></div>
+                
+                <div class="text-center mt-5">
+                    <a href="/selfie-analysis" class="btn btn-outline-primary">
+                        <i class="fas fa-camera me-2"></i>Take Another Selfie
+                    </a>
+                    <a href="/cart" class="btn btn-primary ms-2">
+                        <i class="fas fa-shopping-cart me-2"></i>View Cart
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Instructions Section -->
+    <div class="row mt-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">How to Get the Best Results</h5>
+                    <div class="row g-4 mt-2">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-lightbulb fa-2x mb-2" style="color: var(--bs-warning);"></i>
+                                <h6>Good Lighting</h6>
+                                <p class="small text-muted">Use natural lighting or bright, even light for best results.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-face-smile fa-2x mb-2" style="color: var(--bs-success);"></i>
+                                <h6>Clear View</h6>
+                                <p class="small text-muted">Ensure your face is fully visible and centered in the frame.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-spray-can-sparkles fa-2x mb-2" style="color: var(--bs-info);"></i>
+                                <h6>Clean Skin</h6>
+                                <p class="small text-muted">For best analysis, take your selfie with clean skin without makeup.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+{% endblock %}

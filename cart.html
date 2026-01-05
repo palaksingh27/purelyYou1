@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Shopping Cart</h1>
+    
+    {% if cart and cart|length > 0 %}
+        <div id="cart-items-container">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width: 50%;">Product</th>
+                                    <th scope="col" class="text-center">Price</th>
+                                    <th scope="col" class="text-center">Quantity</th>
+                                    <th scope="col" class="text-end">Subtotal</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart %}
+                                    <tr class="cart-item" data-product-id="{{ item.id }}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    <i class="fas fa-pump-soap fa-2x text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">{{ item.name }}</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center item-price" data-price="{{ item.price * 83 }}">
+                                            ₹{{ "%.2f"|format(item.price * 83) }}
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="quantity-controls">
+                                                <button class="btn btn-sm btn-outline-secondary quantity-control" data-action="decrease">-</button>
+                                                <span class="item-quantity">{{ item.quantity }}</span>
+                                                <button class="btn btn-sm btn-outline-secondary quantity-control" data-action="increase">+</button>
+                                            </div>
+                                        </td>
+                                        <td class="text-end item-subtotal">
+                                            ₹{{ "%.2f"|format(item.price * item.quantity * 83) }}
+                                        </td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-outline-danger remove-item-btn">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="row">
+                <div class="col-md-6 offset-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Order Summary</h5>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span id="cart-total">₹{{ "%.2f"|format(total * 83) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Shipping:</span>
+                                <span>Free</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <strong>Total:</strong>
+                                <strong id="order-total">₹{{ "%.2f"|format(total * 83) }}</strong>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-primary">Proceed to Checkout</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div id="empty-cart-message" class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-3x mb-3 text-muted"></i>
+            <h3>Your cart is empty</h3>
+            <p class="text-muted mb-4">Looks like you haven't added any products to your cart yet.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/products" class="btn btn-primary">Browse Products</a>
+                <a href="/selfie-analysis" class="btn btn-outline-primary">Try Selfie Analysis</a>
+            </div>
+        </div>
+    {% endif %}
+    
+    <!-- Continue Shopping Button -->
+    <div class="mt-4">
+        <a href="/products" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+{% endblock %}

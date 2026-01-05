@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Product{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Upload New Product</h2>
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST" action="{{ url_for('upload_product') }}" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="price" class="form-label">Price ($)</label>
+                                <input type="number" step="0.01" min="0" class="form-control" id="price" name="price" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="" selected disabled>Select a category</option>
+                                    <option value="cleanser">Cleanser</option>
+                                    <option value="toner">Toner</option>
+                                    <option value="serum">Serum</option>
+                                    <option value="moisturizer">Moisturizer</option>
+                                    <option value="suncare">Suncare</option>
+                                    <option value="mask">Mask</option>
+                                    <option value="exfoliant">Exfoliant</option>
+                                    <option value="treatment">Treatment</option>
+                                    <option value="eye care">Eye Care</option>
+                                    <option value="primer">Primer</option>
+                                    <option value="tools">Tools</option>
+                                    <option value="lip care">Lip Care</option>
+                                    <option value="oil">Oil</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Suitable Skin Types</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="all" name="skin_type" value="all">
+                                        <label class="form-check-label" for="all">All Skin Types</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="normal" name="skin_type" value="normal">
+                                        <label class="form-check-label" for="normal">Normal</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="dry" name="skin_type" value="dry">
+                                        <label class="form-check-label" for="dry">Dry</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="oily" name="skin_type" value="oily">
+                                        <label class="form-check-label" for="oily">Oily</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="combination" name="skin_type" value="combination">
+                                        <label class="form-check-label" for="combination">Combination</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="sensitive" name="skin_type" value="sensitive">
+                                        <label class="form-check-label" for="sensitive">Sensitive</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="mature" name="skin_type" value="mature">
+                                        <label class="form-check-label" for="mature">Mature</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="acne-prone" name="skin_type" value="acne-prone">
+                                        <label class="form-check-label" for="acne-prone">Acne-Prone</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="damaged" name="skin_type" value="damaged">
+                                        <label class="form-check-label" for="damaged">Damaged</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Concerns Addressed</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="aging" name="concerns" value="aging">
+                                        <label class="form-check-label" for="aging">Aging</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="wrinkles" name="concerns" value="wrinkles">
+                                        <label class="form-check-label" for="wrinkles">Wrinkles</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="dryness" name="concerns" value="dryness">
+                                        <label class="form-check-label" for="dryness">Dryness</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="dullness" name="concerns" value="dullness">
+                                        <label class="form-check-label" for="dullness">Dullness</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="acne" name="concerns" value="acne">
+                                        <label class="form-check-label" for="acne">Acne</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="oiliness" name="concerns" value="oiliness">
+                                        <label class="form-check-label" for="oiliness">Oiliness</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="redness" name="concerns" value="redness">
+                                        <label class="form-check-label" for="redness">Redness</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="texture" name="concerns" value="texture">
+                                        <label class="form-check-label" for="texture">Texture</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="hyperpigmentation" name="concerns" value="hyperpigmentation">
+                                        <label class="form-check-label" for="hyperpigmentation">Hyperpigmentation</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="uneven-tone" name="concerns" value="uneven tone">
+                                        <label class="form-check-label" for="uneven-tone">Uneven Tone</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="pores" name="concerns" value="pores">
+                                        <label class="form-check-label" for="pores">Enlarged Pores</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="sun-protection" name="concerns" value="sun protection">
+                                        <label class="form-check-label" for="sun-protection">Sun Protection</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="product_image" class="form-label">Product Image</label>
+                            <input class="form-control" type="file" id="product_image" name="product_image" accept="image/*" required>
+                            <div class="form-text">Upload an image of the product (.jpg, .png, .jpeg)</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="image-preview-container text-center d-none" id="image-preview-container">
+                                <p class="fw-bold mb-2">Image Preview:</p>
+                                <img id="image-preview" class="img-thumbnail" style="max-height: 200px;">
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Upload Product</button>
+                            <a href="{{ url_for('products') }}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Image preview functionality
+        const imageInput = document.getElementById('product_image');
+        const imagePreview = document.getElementById('image-preview');
+        const previewContainer = document.getElementById('image-preview-container');
+        
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    previewContainer.classList.remove('d-none');
+                }
+                reader.readAsDataURL(file);
+            } else {
+                previewContainer.classList.add('d-none');
+            }
+        });
+        
+        // "All Skin Types" checkbox logic
+        const allSkinTypeCheckbox = document.getElementById('all');
+        const otherSkinTypeCheckboxes = document.querySelectorAll('input[name="skin_type"]:not(#all)');
+        
+        allSkinTypeCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                otherSkinTypeCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.disabled = true;
+                });
+            } else {
+                otherSkinTypeCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = false;
+                });
+            }
+        });
+        
+        // If other skin types are checked, uncheck "All Skin Types"
+        otherSkinTypeCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    allSkinTypeCheckbox.checked = false;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

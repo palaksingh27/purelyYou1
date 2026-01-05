@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0097FB">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="application-name" content="PurelyYou">
+    <meta name="description" content="AI-powered beauty app with personalized skin analysis and recommendations">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="PurelyYou">
+    <meta name="msapplication-TileColor" content="#0097FB">
+    <meta name="msapplication-TileImage" content="/static/images/icon-144.png">
+    
+    <!-- PWA Links -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/icon-192.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/icon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='images/icon-16.png') }}">
+    
+    <title>PurelyYou - {% block title %}Home{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top py-3 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-spa me-2 text-primary"></i>PurelyYou
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium {% if request.path == '/' %}active fw-bold text-primary{% endif %}" href="/"><i class="fas fa-home me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium {% if request.path == '/products' %}active fw-bold text-primary{% endif %}" href="/products"><i class="fas fa-pump-soap me-1"></i> Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium {% if request.path == '/selfie-analysis' %}active fw-bold text-primary{% endif %}" href="/selfie-analysis"><i class="fas fa-camera me-1"></i> Selfie Analysis</a>
+                    </li>
+<!-- Skincare Tips nav item removed as per user request -->
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium {% if '/blog' in request.path %}active fw-bold text-primary{% endif %}" href="/blog"><i class="fas fa-blog me-1"></i> Blog</a>
+                    </li>
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium {% if request.path == '/upload-product' %}active fw-bold text-primary{% endif %}" href="/upload-product"><i class="fas fa-upload me-1"></i> Upload Product</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <div class="d-flex align-items-center">
+                    <a href="{{ url_for('view_cart') }}" class="nav-link me-3 position-relative">
+                        <i class="fas fa-shopping-bag"></i>
+                        {% if session.get('cart') %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ session.get('cart')|length }}
+                        </span>
+                        {% endif %}
+                    </a>
+                    {% if current_user.is_authenticated %}
+                        <div class="dropdown me-3">
+                            <a href="#" class="nav-link dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i> {{ current_user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('order_history') }}"><i class="fas fa-history me-2"></i>Order History</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('skin_profile') }}"><i class="fas fa-fingerprint me-2"></i>Skin Profile</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('account_settings') }}"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                {% if current_user.is_admin %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-primary"></i>Admin Dashboard</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <div class="dropdown me-3">
+                            <a href="#" class="nav-link dropdown-toggle" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user me-1"></i> Account
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="accountDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt me-2 text-muted"></i>Login</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('register') }}"><i class="fas fa-user-plus me-2 text-muted"></i>Register</a></li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <a href="/cart" class="btn btn-primary position-relative rounded-pill px-3">
+                        <i class="fas fa-shopping-cart me-1"></i> Cart
+                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge" style="display: {% if session.get('cart') %}inline-block{% else %}none{% endif %}">
+                            {{ session.get('cart', [])|length }}
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content page-transition">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav d-flex justify-content-around align-items-center d-md-none">
+        <a href="/" class="text-center py-1 {% if request.path == '/' %}text-primary{% else %}text-muted{% endif %}">
+            <i class="fas fa-home d-block mb-1"></i>
+            <span class="small">Home</span>
+        </a>
+        <a href="/products" class="text-center py-1 {% if request.path == '/products' %}text-primary{% else %}text-muted{% endif %}">
+            <i class="fas fa-pump-soap d-block mb-1"></i>
+            <span class="small">Products</span>
+        </a>
+        <a href="/selfie-analysis" class="text-center py-1 {% if request.path == '/selfie-analysis' %}text-primary{% else %}text-muted{% endif %}">
+            <i class="fas fa-camera d-block mb-1"></i>
+            <span class="small">Analysis</span>
+        </a>
+        <a href="/blog" class="text-center py-1 {% if '/blog' in request.path %}text-primary{% else %}text-muted{% endif %}">
+            <i class="fas fa-blog d-block mb-1"></i>
+            <span class="small">Blog</span>
+        </a>
+        <a href="{{ url_for('login') if not current_user.is_authenticated else '#' }}" class="text-center py-1 text-muted dropdown-toggle" 
+           id="mobileAccountDropdown" role="button" {% if current_user.is_authenticated %}data-bs-toggle="dropdown"{% endif %} aria-expanded="false">
+            <i class="fas fa-user d-block mb-1"></i>
+            <span class="small">Account</span>
+        </a>
+        {% if current_user.is_authenticated %}
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="mobileAccountDropdown">
+            <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="fas fa-user me-2"></i>Profile</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('order_history') }}"><i class="fas fa-history me-2"></i>Orders</a></li>
+            {% if current_user.is_admin %}
+            <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-primary"></i>Admin</a></li>
+            {% endif %}
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+        </ul>
+        {% endif %}
+    </nav>
+
+    <!-- Newsletter section -->
+    <section class="py-5 newsletter-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8 text-center">
+                    <h3 class="fw-bold mb-4">Join Our Beauty Newsletter</h3>
+                    <p class="text-muted mb-4">Get personalized skincare tips, exclusive offers, and early access to new products.</p>
+                    <div class="input-group mb-3 shadow-sm">
+                        <input type="email" class="form-control form-control-lg" placeholder="Enter your email address" aria-label="Email address">
+                        <button class="btn btn-primary px-4" type="button">Subscribe</button>
+                    </div>
+                    <p class="small text-muted mt-2">By subscribing, you agree to our Privacy Policy and Terms of Service.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h5 class="fw-bold"><i class="fas fa-spa me-2 text-primary"></i>PurelyYou</h5>
+                    <p class="text-muted">Experience the future of beauty with our AI-powered skincare analysis and personalized product recommendations.</p>
+                    <div class="d-flex gap-3 mt-4">
+                        <a href="#" class="text-muted fs-5"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-muted fs-5"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-muted fs-5"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-muted fs-5"><i class="fab fa-pinterest"></i></a>
+                        <a href="#" class="text-muted fs-5"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <h6 class="fw-bold mb-3">Shop</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/products" class="text-decoration-none text-muted">All Products</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">New Arrivals</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Best Sellers</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Special Offers</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <h6 class="fw-bold mb-3">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/" class="text-decoration-none text-muted">Home</a></li>
+                        <li class="mb-2"><a href="/selfie-analysis" class="text-decoration-none text-muted">Selfie Analysis</a></li>
+                        <!-- Skincare Tips link removed as per user request -->
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <h6 class="fw-bold mb-3">Support</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Contact Us</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">FAQ</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Shipping</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Returns</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <h6 class="fw-bold mb-3">Contact</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-envelope me-2 text-primary"></i>hello@purelyyou.com</li>
+                        <li class="mb-2"><i class="fas fa-phone me-2 text-primary"></i>(800) 123-4567</li>
+                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2 text-primary"></i>123 Beauty Street, Suite 100</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-md-0 text-muted small">&copy; 2025 PurelyYou. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item"><a href="#" class="text-muted small">Privacy Policy</a></li>
+                        <li class="list-inline-item"><span class="text-muted mx-1">•</span></li>
+                        <li class="list-inline-item"><a href="#" class="text-muted small">Terms of Service</a></li>
+                        <li class="list-inline-item"><span class="text-muted mx-1">•</span></li>
+                        <li class="list-inline-item"><a href="#" class="text-muted small">Sitemap</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Initialize Bootstrap Components and PWA -->
+    <script>
+        // Show a toast notification on mobile
+        function showMobileToast(message, isError = false) {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (!isMobile) return;
+            
+            // Create toast container if it doesn't exist
+            let toastContainer = document.querySelector('.mobile-toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.className = 'mobile-toast-container position-fixed bottom-0 start-50 translate-middle-x p-3';
+                toastContainer.style.zIndex = '1090';
+                toastContainer.style.width = '90%';
+                toastContainer.style.maxWidth = '400px';
+                document.body.appendChild(toastContainer);
+            }
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white ${isError ? 'bg-danger' : 'bg-success'} border-0 mb-2`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Show the toast
+            const bsToast = new bootstrap.Toast(toast, {
+                animation: true,
+                autohide: true,
+                delay: 3000
+            });
+            
+            bsToast.show();
+            
+            // Remove toast after it's hidden
+            toast.addEventListener('hidden.bs.toast', () => {
+                toast.remove();
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Register service worker for PWA functionality
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/static/service-worker.js', {scope: '/'})
+                    .then(function(registration) {
+                        console.log('Service Worker registered successfully with scope:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            }
+            
+            // Handle install prompt for PWA
+            let deferredPrompt;
+            
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Prevent Chrome 67 and earlier from automatically showing the prompt
+                e.preventDefault();
+                // Stash the event so it can be triggered later
+                deferredPrompt = e;
+                
+                // Show installation toast
+                const installToast = document.getElementById('installPWA');
+                if (installToast) {
+                    const toast = new bootstrap.Toast(installToast);
+                    toast.show();
+                    
+                    // Add event listener to install button
+                    const installBtn = document.getElementById('installPWAButton');
+                    if (installBtn) {
+                        installBtn.addEventListener('click', (e) => {
+                            // Hide the toast
+                            toast.hide();
+                            
+                            // Show the prompt
+                            deferredPrompt.prompt();
+                            
+                            // Wait for the user to respond to the prompt
+                            deferredPrompt.userChoice.then((choiceResult) => {
+                                if (choiceResult.outcome === 'accepted') {
+                                    console.log('User accepted the install prompt');
+                                    showMobileToast('App installed successfully!');
+                                } else {
+                                    console.log('User dismissed the install prompt');
+                                }
+                                
+                                // Clear the saved prompt
+                                deferredPrompt = null;
+                            });
+                        });
+                    }
+                }
+            });
+            
+            // Handle successful installation
+            window.addEventListener('appinstalled', (evt) => {
+                console.log('App was installed successfully');
+            });
+            
+            // Mobile navigation enhancements
+            const navbarToggler = document.querySelector('.navbar-toggler');
+            const navbarNav = document.getElementById('navbarNav');
+            
+            // Auto-close mobile nav when clicking a nav-link
+            document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 992 && navbarNav.classList.contains('show')) {
+                        navbarToggler.click();
+                    }
+                });
+            });
+            
+            // Add active state effects for better touch feedback
+            document.querySelectorAll('button, .btn, a.nav-link, .card').forEach(element => {
+                element.addEventListener('touchstart', function() {
+                    this.classList.add('touch-active');
+                }, { passive: true });
+                
+                element.addEventListener('touchend', function() {
+                    this.classList.remove('touch-active');
+                }, { passive: true });
+            });
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Add to home screen prompt -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+        <div id="installPWA" class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-mobile-alt me-2"></i> Install PurelyYou on your device for a better experience!
+                </div>
+                <button id="installPWAButton" type="button" class="btn btn-light btn-sm m-auto me-2">Install</button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

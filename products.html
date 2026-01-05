@@ -1,0 +1,485 @@
+{% extends 'base.html' %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+<!-- Products Hero Section -->
+<section class="py-5" style="background-color: var(--light-pink);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <span class="badge rounded-pill px-3 py-2 mb-2" style="background-color: rgba(255, 107, 147, 0.1); color: var(--primary-color);">OUR COLLECTION</span>
+                <h1 class="display-4 fw-bold mb-3">Beauty Products for Every Skin Type</h1>
+                <p class="lead mb-4">Discover premium skincare solutions curated by experts and powered by cutting-edge technology.</p>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block text-center">
+                <div class="position-relative">
+                    <div class="position-absolute top-0 start-0 animate-float" style="animation-delay: 0.5s;">
+                        <div class="rounded-circle p-3 d-inline-block" style="background-color: rgba(255, 107, 147, 0.1);">
+                            <i class="fas fa-tint fa-2x" style="color: var(--primary-color);"></i>
+                        </div>
+                    </div>
+                    <div class="position-absolute bottom-0 end-0 animate-float" style="animation-delay: 1.2s;">
+                        <div class="rounded-circle p-3 d-inline-block" style="background-color: rgba(131, 103, 251, 0.1);">
+                            <i class="fas fa-flask fa-2x" style="color: var(--secondary-color);"></i>
+                        </div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1580870069867-74c57ee1bb07?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YmVhdXR5JTIwcHJvZHVjdHN8ZW58MHx8MHx8fDA%3D" class="mx-auto d-block" style="max-width: 300px; opacity: 0.1;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Products Section -->
+<div class="container py-5">
+    <!-- Filters Section -->
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Find Your Perfect Match</h5>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-medium text-muted mb-2">Category</label>
+                            <select class="form-select form-select-lg rounded-pill" id="category-filter">
+                                <option value="">All Categories</option>
+                                <option value="moisturizer">Moisturizers</option>
+                                <option value="serum">Serums</option>
+                                <option value="exfoliant">Exfoliants</option>
+                                <option value="toner">Toners</option>
+                                <option value="mask">Masks</option>
+                                <option value="treatment">Treatments</option>
+                                <option value="suncare">Suncare</option>
+                                <option value="lip care">Lip Care</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-medium text-muted mb-2">Skin Type</label>
+                            <select class="form-select form-select-lg rounded-pill" id="skin-type-filter">
+                                <option value="">All Skin Types</option>
+                                <option value="dry">Dry</option>
+                                <option value="oily">Oily</option>
+                                <option value="combination">Combination</option>
+                                <option value="normal">Normal</option>
+                                <option value="sensitive">Sensitive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-medium text-muted mb-2">Skin Concern</label>
+                            <select class="form-select form-select-lg rounded-pill" id="concern-filter">
+                                <option value="">All Concerns</option>
+                                <option value="acne">Acne</option>
+                                <option value="aging">Aging</option>
+                                <option value="dryness">Dryness</option>
+                                <option value="oiliness">Oiliness</option>
+                                <option value="hyperpigmentation">Hyperpigmentation</option>
+                                <option value="texture">Texture</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label opacity-0 mb-2">Filter</label>
+                            <button class="btn btn-primary btn-lg w-100 rounded-pill" id="filter-button">
+                                <i class="fas fa-filter me-2"></i>Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Products Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="products-container">
+        {% if products %}
+            {% for product in products %}
+                <div class="col product-item" 
+                     data-category="{{ product.category }}" 
+                     data-skin-types="{{ product.skin_type|join(',') }}" 
+                     data-concerns="{{ product.concerns|join(',') }}">
+                    <div class="product-card h-100 shadow-sm rounded-4 overflow-hidden" data-bs-toggle="modal" data-bs-target="#productModal-{{ product.id }}">
+                        <div class="product-image position-relative">
+                            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 p-2">
+                                {% if product.category == 'moisturizer' %}
+                                    <span class="badge rounded-pill px-3 py-2 bg-info bg-opacity-10 text-info">Moisturizer</span>
+                                {% elif product.category == 'serum' %}
+                                    <span class="badge rounded-pill px-3 py-2 bg-primary bg-opacity-10 text-primary">Serum</span>
+                                {% elif product.category == 'exfoliant' %}
+                                    <span class="badge rounded-pill px-3 py-2 bg-danger bg-opacity-10 text-danger">Exfoliant</span>
+                                {% elif product.category == 'toner' %}
+                                    <span class="badge rounded-pill px-3 py-2 bg-success bg-opacity-10 text-success">Toner</span>
+                                {% elif product.category == 'mask' %}
+                                    <span class="badge rounded-pill px-3 py-2 bg-warning bg-opacity-10 text-warning">Mask</span>
+                                {% elif product.category == 'treatment' %}
+                                    <span class="badge rounded-pill px-3 py-2 bg-secondary bg-opacity-10 text-secondary">Treatment</span>
+                                {% elif product.category == 'suncare' %}
+                                    <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(255, 193, 7, 0.1); color: #ffc107;">Suncare</span>
+                                {% elif product.category == 'lip care' %}
+                                    <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(255, 107, 147, 0.1); color: var(--primary-color);">Lip Care</span>
+                                {% else %}
+                                    <span class="badge rounded-pill px-3 py-2 bg-dark bg-opacity-10 text-dark">{{ product.category|capitalize }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <h5 class="card-title fw-bold mb-2">{{ product.name }}</h5>
+                            <p class="card-text text-muted small mb-3">{{ product.description|truncate(80) }}</p>
+                            
+                            <div class="d-flex flex-wrap gap-1 mb-3">
+                                {% for skin in product.skin_type %}
+                                    <span class="badge rounded-pill px-2 py-1 bg-light text-muted small">{{ skin }}</span>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="product-price fw-bold">₹{{ "%.2f"|format(product.price * 83) }}</span>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-1">
+                                        <i class="fas fa-star text-warning"></i>
+                                        <span class="small fw-bold">4.8</span>
+                                    </div>
+                                    <span class="small text-muted">(120)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0 p-3 pt-0">
+                            <button class="btn btn-primary rounded-pill w-100 add-to-cart-btn" data-product-id="{{ product.id }}" onclick="event.stopPropagation();">
+                                <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Product Modal -->
+                    <div class="modal fade" id="productModal-{{ product.id }}" tabindex="-1" aria-labelledby="productModal-{{ product.id }}-Label" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-xl">
+                            <div class="modal-content">
+                                <div class="modal-header border-0">
+                                    <h5 class="modal-title" id="productModal-{{ product.id }}-Label">{{ product.name }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <!-- Product Image -->
+                                        <div class="col-md-6">
+                                            <div class="product-image-container">
+                                                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="img-fluid rounded-4">
+                                            </div>
+                                        </div>
+                                        <!-- Product Details -->
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                {% if product.category == 'moisturizer' %}
+                                                    <span class="badge rounded-pill px-3 py-2 bg-info bg-opacity-10 text-info">Moisturizer</span>
+                                                {% elif product.category == 'serum' %}
+                                                    <span class="badge rounded-pill px-3 py-2 bg-primary bg-opacity-10 text-primary">Serum</span>
+                                                {% elif product.category == 'exfoliant' %}
+                                                    <span class="badge rounded-pill px-3 py-2 bg-danger bg-opacity-10 text-danger">Exfoliant</span>
+                                                {% elif product.category == 'toner' %}
+                                                    <span class="badge rounded-pill px-3 py-2 bg-success bg-opacity-10 text-success">Toner</span>
+                                                {% elif product.category == 'mask' %}
+                                                    <span class="badge rounded-pill px-3 py-2 bg-warning bg-opacity-10 text-warning">Mask</span>
+                                                {% elif product.category == 'treatment' %}
+                                                    <span class="badge rounded-pill px-3 py-2 bg-secondary bg-opacity-10 text-secondary">Treatment</span>
+                                                {% elif product.category == 'suncare' %}
+                                                    <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(255, 193, 7, 0.1); color: #ffc107;">Suncare</span>
+                                                {% elif product.category == 'lip care' %}
+                                                    <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(255, 107, 147, 0.1); color: var(--primary-color);">Lip Care</span>
+                                                {% else %}
+                                                    <span class="badge rounded-pill px-3 py-2 bg-dark bg-opacity-10 text-dark">{{ product.category|capitalize }}</span>
+                                                {% endif %}
+                                            </div>
+                                            <h3 class="fw-bold mb-2">{{ product.name }}</h3>
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="me-3">
+                                                    <i class="fas fa-star text-warning"></i>
+                                                    <span class="fw-bold">4.8</span>
+                                                    <span class="text-muted">(120 reviews)</span>
+                                                </div>
+                                                <div class="ms-auto">
+                                                    <span class="badge bg-success">In Stock</span>
+                                                </div>
+                                            </div>
+                                            <h4 class="text-primary mb-4">₹{{ "%.2f"|format(product.price * 83) }}</h4>
+                                            <p class="mb-4">{{ product.description }}</p>
+                                            
+                                            <div class="mb-3">
+                                                <h6 class="fw-bold mb-2">Suitable for:</h6>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    {% for skin in product.skin_type %}
+                                                        <span class="badge rounded-pill px-3 py-2 bg-light text-muted">{{ skin }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <h6 class="fw-bold mb-2">Addresses:</h6>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    {% for concern in product.concerns %}
+                                                        <span class="badge rounded-pill px-3 py-2 bg-light text-muted">{{ concern }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <label for="quantity-{{ product.id }}" class="form-label fw-medium">Quantity</label>
+                                                <div class="input-group mb-3" style="width: 140px;">
+                                                    <button class="btn btn-outline-secondary" type="button" onclick="decrementQuantity('quantity-{{ product.id }}')">-</button>
+                                                    <input type="number" class="form-control text-center" id="quantity-{{ product.id }}" value="1" min="1">
+                                                    <button class="btn btn-outline-secondary" type="button" onclick="incrementQuantity('quantity-{{ product.id }}')">+</button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="d-grid gap-2">
+                                                <button class="btn btn-primary btn-lg rounded-pill add-to-cart-modal-btn" data-product-id="{{ product.id }}">
+                                                    <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                                                </button>
+                                                <button class="btn btn-outline-primary btn-lg rounded-pill">
+                                                    <i class="fas fa-heart me-2"></i>Add to Wishlist
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Product Reviews Section -->
+                                    <div class="row mt-5">
+                                        <div class="col-12">
+                                            <h4 class="fw-bold mb-4">Customer Reviews</h4>
+                                            <div class="review-container">
+                                                <!-- Review 1 -->
+                                                <div class="card border-0 shadow-sm mb-3">
+                                                    <div class="card-body">
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <div class="d-flex align-items-center">
+                                                                <img src="https://randomuser.me/api/portraits/women/32.jpg" class="rounded-circle me-2" width="40" height="40" alt="Reviewer">
+                                                                <div>
+                                                                    <h6 class="mb-0 fw-bold">Priya Sharma</h6>
+                                                                    <div class="text-warning mb-1">
+                                                                        <i class="fas fa-star"></i>
+                                                                        <i class="fas fa-star"></i>
+                                                                        <i class="fas fa-star"></i>
+                                                                        <i class="fas fa-star"></i>
+                                                                        <i class="fas fa-star"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <small class="text-muted">2 weeks ago</small>
+                                                        </div>
+                                                        <h6 class="fw-bold mb-2">Amazing product!</h6>
+                                                        <p class="mb-0">This product has been a game-changer for my skincare routine. I've seen visible results in just two weeks of use. My skin feels more hydrated and looks brighter.</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Review 2 -->
+                                                <div class="card border-0 shadow-sm mb-3">
+                                                    <div class="card-body">
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <div class="d-flex align-items-center">
+                                                                <img src="https://randomuser.me/api/portraits/men/45.jpg" class="rounded-circle me-2" width="40" height="40" alt="Reviewer">
+                                                                <div>
+                                                                    <h6 class="mb-0 fw-bold">Raj Patel</h6>
+                                                                    <div class="text-warning mb-1">
+                                                                        <i class="fas fa-star"></i>
+                                                                        <i class="fas fa-star"></i>
+                                                                        <i class="fas fa-star"></i>
+                                                                        <i class="fas fa-star"></i>
+                                                                        <i class="far fa-star"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <small class="text-muted">1 month ago</small>
+                                                        </div>
+                                                        <h6 class="fw-bold mb-2">Good but could be better</h6>
+                                                        <p class="mb-0">I like the formula and how it feels on my skin. The only downside is the packaging - it's hard to get the last bit of product out of the bottle.</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Add Review Form -->
+                                                <div class="card border-0 shadow-sm">
+                                                    <div class="card-body">
+                                                        <h5 class="fw-bold mb-3">Write a Review</h5>
+                                                        <form>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Rating</label>
+                                                                <div class="rating-input">
+                                                                    <i class="far fa-star rating-star" data-value="1"></i>
+                                                                    <i class="far fa-star rating-star" data-value="2"></i>
+                                                                    <i class="far fa-star rating-star" data-value="3"></i>
+                                                                    <i class="far fa-star rating-star" data-value="4"></i>
+                                                                    <i class="far fa-star rating-star" data-value="5"></i>
+                                                                </div>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="review-title-{{ product.id }}" class="form-label">Review Title</label>
+                                                                <input type="text" class="form-control" id="review-title-{{ product.id }}" placeholder="Summarize your experience">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="review-comment-{{ product.id }}" class="form-label">Your Review</label>
+                                                                <textarea class="form-control" id="review-comment-{{ product.id }}" rows="3" placeholder="What did you like or dislike about this product?"></textarea>
+                                                            </div>
+                                                            <button type="submit" class="btn btn-primary rounded-pill px-4">Submit Review</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <div class="py-5">
+                    <i class="fas fa-box-open fa-5x mb-4 text-muted opacity-25"></i>
+                    <h3 class="fw-bold">No products found</h3>
+                    <p class="text-muted mb-4">We couldn't find any products matching your criteria.</p>
+                    <a href="/products" class="btn btn-outline-primary rounded-pill px-4">View All Products</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- No Results Message (initially hidden) -->
+    <div id="no-results" class="text-center py-5" style="display: none;">
+        <div class="py-5">
+            <i class="fas fa-filter fa-5x mb-4 text-muted opacity-25"></i>
+            <h3 class="fw-bold">No products match your filters</h3>
+            <p class="text-muted mb-4">Try adjusting your filter criteria to see more products.</p>
+            <button class="btn btn-primary rounded-pill px-4" id="reset-filters">Reset Filters</button>
+        </div>
+    </div>
+</div>
+
+<!-- Why Choose Us Section -->
+<section class="py-5" style="background-color: var(--light-pink);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge rounded-pill px-3 py-2 mb-2" style="background-color: rgba(255, 107, 147, 0.1); color: var(--primary-color);">WHY CHOOSE US</span>
+            <h2 class="display-5 fw-bold mb-3">Beauty Products You'll Love</h2>
+            <p class="lead text-muted mx-auto" style="max-width: 700px;">We've crafted our products with care using only the finest ingredients to ensure exceptional results.</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card p-4 text-center h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h4 class="fw-bold my-3">Natural Ingredients</h4>
+                    <p class="text-muted mb-0">Our products are made with natural, ethically sourced ingredients to nourish your skin without harm.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card p-4 text-center h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h4 class="fw-bold my-3">Scientifically Tested</h4>
+                    <p class="text-muted mb-0">Each product undergoes rigorous testing to ensure safety, effectiveness, and quality you can trust.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card p-4 text-center h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-paw"></i>
+                    </div>
+                    <h4 class="fw-bold my-3">Cruelty-Free</h4>
+                    <p class="text-muted mb-0">We're committed to ethical beauty. None of our products or ingredients are tested on animals.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/recommendations.js') }}"></script>
+<script>
+    // Quantity increment/decrement functions for product modal
+    function incrementQuantity(inputId) {
+        const input = document.getElementById(inputId);
+        if (input) {
+            const currentValue = parseInt(input.value) || 1;
+            input.value = currentValue + 1;
+        }
+    }
+    
+    function decrementQuantity(inputId) {
+        const input = document.getElementById(inputId);
+        if (input) {
+            const currentValue = parseInt(input.value) || 1;
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+            }
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterButton = document.getElementById('filter-button');
+        const resetFiltersButton = document.getElementById('reset-filters');
+        const categoryFilter = document.getElementById('category-filter');
+        const skinTypeFilter = document.getElementById('skin-type-filter');
+        const concernFilter = document.getElementById('concern-filter');
+        const productsContainer = document.getElementById('products-container');
+        const noResultsMessage = document.getElementById('no-results');
+        
+        // Apply filters when filter button is clicked
+        filterButton.addEventListener('click', function() {
+            const categoryValue = categoryFilter.value.toLowerCase();
+            const skinTypeValue = skinTypeFilter.value.toLowerCase();
+            const concernValue = concernFilter.value.toLowerCase();
+            
+            let visibleProducts = 0;
+            
+            // Loop through all product items and filter them
+            document.querySelectorAll('.product-item').forEach(product => {
+                const category = product.getAttribute('data-category').toLowerCase();
+                const skinTypes = product.getAttribute('data-skin-types').toLowerCase();
+                const concerns = product.getAttribute('data-concerns').toLowerCase();
+                
+                // Check if the product matches all selected filters
+                const matchesCategory = !categoryValue || category === categoryValue;
+                const matchesSkinType = !skinTypeValue || skinTypes.includes(skinTypeValue) || skinTypes.includes('all');
+                const matchesConcern = !concernValue || concerns.includes(concernValue);
+                
+                // Show or hide the product based on filter match
+                if (matchesCategory && matchesSkinType && matchesConcern) {
+                    product.style.display = 'block';
+                    visibleProducts++;
+                } else {
+                    product.style.display = 'none';
+                }
+            });
+            
+            // Show "no results" message if no products match filters
+            if (visibleProducts === 0) {
+                productsContainer.style.display = 'none';
+                noResultsMessage.style.display = 'block';
+            } else {
+                productsContainer.style.display = 'flex';
+                noResultsMessage.style.display = 'none';
+            }
+        });
+        
+        // Reset filters when reset button is clicked
+        resetFiltersButton.addEventListener('click', function() {
+            categoryFilter.value = '';
+            skinTypeFilter.value = '';
+            concernFilter.value = '';
+            
+            // Show all products
+            document.querySelectorAll('.product-item').forEach(product => {
+                product.style.display = 'block';
+            });
+            
+            productsContainer.style.display = 'flex';
+            noResultsMessage.style.display = 'none';
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,566 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Profile - PurelyYou{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        {% if current_user.profile_pic %}
+                        <img src="{{ current_user.profile_pic }}" alt="{{ current_user.username }}" class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-light rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 150px; height: 150px;">
+                            <i class="bi bi-person-circle" style="font-size: 4rem;"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <h5 class="card-title">{{ current_user.first_name }} {{ current_user.last_name }}</h5>
+                    <p class="card-text text-muted">@{{ current_user.username }}</p>
+                    <p class="card-text"><small>Member since: {{ current_user.date_joined.strftime('%b %Y') }}</small></p>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('profile') }}" class="list-group-item list-group-item-action {% if active_tab == 'profile' %}active{% endif %}">
+                        <i class="bi bi-person me-2"></i> Profile
+                    </a>
+                    <a href="{{ url_for('order_history') }}" class="list-group-item list-group-item-action {% if active_tab == 'orders' %}active{% endif %}">
+                        <i class="bi bi-bag me-2"></i> Orders
+                    </a>
+                    <a href="{{ url_for('skin_profile') }}" class="list-group-item list-group-item-action {% if active_tab == 'skin' %}active{% endif %}">
+                        <i class="bi bi-fingerprint me-2"></i> Skin Profile
+                    </a>
+                    <a href="{{ url_for('account_settings') }}" class="list-group-item list-group-item-action {% if active_tab == 'settings' %}active{% endif %}">
+                        <i class="bi bi-gear me-2"></i> Settings
+                    </a>
+                    {% if current_user.is_admin %}
+                    <a href="{{ url_for('admin_dashboard') }}" class="list-group-item list-group-item-action list-group-item-primary">
+                        <i class="bi bi-speedometer2 me-2"></i> Admin Dashboard
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9">
+            {% if active_tab == 'profile' %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Profile Information</h5>
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                            <i class="bi bi-pencil me-1"></i> Edit
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Full Name</h6>
+                                <p>{{ current_user.first_name }} {{ current_user.last_name }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Username</h6>
+                                <p>{{ current_user.username }}</p>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Email</h6>
+                                <p>{{ current_user.email }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Phone</h6>
+                                <p>{{ current_user.phone or 'Not provided' }}</p>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="text-muted">Address</h6>
+                            <p>
+                                {% if current_user.address %}
+                                {{ current_user.address }}<br>
+                                {{ current_user.city }}, {{ current_user.state }} {{ current_user.pincode }}
+                                {% else %}
+                                No address provided
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="text-muted">About Me</h6>
+                            <p>{{ current_user.bio or 'No bio provided' }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Orders Preview -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Recent Orders</h5>
+                        <a href="{{ url_for('order_history') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in recent_orders %}
+                                    <tr>
+                                        <td>#{{ order.id }}</td>
+                                        <td>{{ order.order_date.strftime('%d %b, %Y') }}</td>
+                                        <td>₹{{ order.total_amount|round(2) }}</td>
+                                        <td>
+                                            {% if order.status == 'pending' %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                            {% elif order.status == 'processing' %}
+                                            <span class="badge bg-info">Processing</span>
+                                            {% elif order.status == 'shipped' %}
+                                            <span class="badge bg-primary">Shipped</span>
+                                            {% elif order.status == 'delivered' %}
+                                            <span class="badge bg-success">Delivered</span>
+                                            {% elif order.status == 'cancelled' %}
+                                            <span class="badge bg-danger">Cancelled</span>
+                                            {% else %}
+                                            <span class="badge bg-secondary">{{ order.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('view_order', order_id=order.id) }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            You haven't placed any orders yet.
+                            <a href="{{ url_for('products') }}" class="alert-link">Browse products</a> to get started.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Reviews -->
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Your Reviews</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if user_reviews %}
+                        <div class="row">
+                            {% for review in user_reviews %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <h6 class="card-title">{{ review.product.name }}</h6>
+                                            <div>
+                                                {% for i in range(5) %}
+                                                <i class="bi {% if i < review.rating %}bi-star-fill text-warning{% else %}bi-star{% endif %}"></i>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <h6>{{ review.title }}</h6>
+                                        <p class="card-text small">{{ review.comment|truncate(100) }}</p>
+                                        <div class="text-muted small">Posted on {{ review.created_at.strftime('%d %b, %Y') }}</div>
+                                    </div>
+                                    <div class="card-footer bg-transparent">
+                                        <a href="{{ url_for('product_detail', product_id=review.product_id) }}" class="btn btn-sm btn-outline-primary">View Product</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            You haven't written any reviews yet.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% elif active_tab == 'orders' %}
+                <!-- Order History Content -->
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">Order History</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Date</th>
+                                        <th>Items</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    <tr>
+                                        <td>#{{ order.id }}</td>
+                                        <td>{{ order.order_date.strftime('%d %b, %Y') }}</td>
+                                        <td>{{ order.order_items|length }} item(s)</td>
+                                        <td>₹{{ order.total_amount|round(2) }}</td>
+                                        <td>
+                                            {% if order.status == 'pending' %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                            {% elif order.status == 'processing' %}
+                                            <span class="badge bg-info">Processing</span>
+                                            {% elif order.status == 'shipped' %}
+                                            <span class="badge bg-primary">Shipped</span>
+                                            {% elif order.status == 'delivered' %}
+                                            <span class="badge bg-success">Delivered</span>
+                                            {% elif order.status == 'cancelled' %}
+                                            <span class="badge bg-danger">Cancelled</span>
+                                            {% else %}
+                                            <span class="badge bg-secondary">{{ order.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('view_order', order_id=order.id) }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            You haven't placed any orders yet.
+                            <a href="{{ url_for('products') }}" class="alert-link">Browse products</a> to get started.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% elif active_tab == 'skin' %}
+                <!-- Skin Profile Content -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Your Skin Profile</h5>
+                        <a href="{{ url_for('selfie_analysis') }}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-camera me-1"></i> Take New Selfie
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if current_user.skin_type or current_user.skin_tone %}
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <h6 class="text-muted">Skin Type</h6>
+                                    <p class="font-weight-bold">{{ current_user.skin_type|title or 'Not analyzed' }}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <h6 class="text-muted">Skin Tone</h6>
+                                    <p class="font-weight-bold">{{ current_user.skin_tone|title or 'Not analyzed' }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <h6 class="text-muted">Skin Concerns</h6>
+                                    {% if current_user.concerns %}
+                                        <div>
+                                            {% for concern in current_user.get_concerns() %}
+                                            <span class="badge bg-secondary me-1 mb-1">{{ concern|title }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <p>No concerns detected</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading">Personalized Recommendations</h6>
+                            <p>Based on your skin profile, we recommend products specifically tailored for 
+                                {{ current_user.skin_type|lower }} skin{% if current_user.get_concerns() %} with concerns including
+                                {{ current_user.get_concerns()|join(', ') }}{% endif %}.</p>
+                            <a href="{{ url_for('products') }}" class="btn btn-sm btn-outline-primary">View Recommended Products</a>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            <h6 class="alert-heading">No Skin Profile Available</h6>
+                            <p>Take a selfie to analyze your skin and get personalized product recommendations.</p>
+                            <a href="{{ url_for('selfie_analysis') }}" class="btn btn-primary">
+                                Take Selfie Now
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Recent Analysis -->
+                {% if current_user.skin_type %}
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">Recommended Routine</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="mb-3">Morning Routine</h6>
+                                <ol class="list-group list-group-numbered mb-4">
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">Gentle Cleanser</div>
+                                            Start with a gentle cleanser suitable for {{ current_user.skin_type|lower }} skin
+                                        </div>
+                                    </li>
+                                    {% if 'acne' in current_user.get_concerns() or 'oily' in current_user.skin_type|lower %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">Toner</div>
+                                            Use a balancing toner to control oil and clear pores
+                                        </div>
+                                    </li>
+                                    {% endif %}
+                                    {% if 'aging' in current_user.get_concerns() or 'hyperpigmentation' in current_user.get_concerns() %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">Vitamin C Serum</div>
+                                            Apply antioxidant serum to brighten and protect
+                                        </div>
+                                    </li>
+                                    {% endif %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">Moisturizer</div>
+                                            Hydrate with a {{ 'lightweight' if 'oily' in current_user.skin_type|lower else 'nourishing' }} moisturizer
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">Sunscreen</div>
+                                            Finish with SPF 30+ sunscreen (essential)
+                                        </div>
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="mb-3">Evening Routine</h6>
+                                <ol class="list-group list-group-numbered">
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">Makeup Remover/Oil Cleanser</div>
+                                            First cleanse to remove makeup and sunscreen
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">Water-based Cleanser</div>
+                                            Second cleanse to purify skin
+                                        </div>
+                                    </li>
+                                    {% if 'acne' in current_user.get_concerns() %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">Treatment</div>
+                                            Apply acne-fighting ingredients like salicylic acid
+                                        </div>
+                                    </li>
+                                    {% elif 'aging' in current_user.get_concerns() %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">Treatment</div>
+                                            Apply retinol or peptides for anti-aging benefits
+                                        </div>
+                                    </li>
+                                    {% endif %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">Night Moisturizer</div>
+                                            Apply a richer cream to nourish overnight
+                                        </div>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% elif active_tab == 'settings' %}
+                <!-- Account Settings Content -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Account Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="mb-3">Email Notifications</h6>
+                        <form method="POST" action="{{ url_for('update_email_preferences') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter" {% if current_user.receive_newsletter %}checked{% endif %}>
+                                <label class="form-check-label" for="newsletter">
+                                    Receive newsletter and updates
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Preferences</button>
+                        </form>
+                        
+                        <hr class="my-4">
+                        
+                        <h6 class="mb-3">Change Password</h6>
+                        <form method="POST" action="{{ url_for('change_password') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="mb-3">
+                                <label for="current_password" class="form-label">Current Password</label>
+                                <input type="password" class="form-control" id="current_password" name="current_password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="new_password" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="new_password" name="new_password" required minlength="8">
+                                <div class="form-text">Password must be at least 8 characters long</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirm_password" class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </form>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="mb-3">
+                            <h6 class="text-danger mb-3">Danger Zone</h6>
+                            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ current_user.username }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email }}" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="first_name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ current_user.first_name }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="last_name" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ current_user.last_name }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="phone" name="phone" value="{{ current_user.phone }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="2">{{ current_user.address }}</textarea>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city" name="city" value="{{ current_user.city }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" class="form-control" id="state" name="state" value="{{ current_user.state }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="pincode" class="form-label">PIN Code</label>
+                            <input type="text" class="form-control" id="pincode" name="pincode" value="{{ current_user.pincode }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bio" class="form-label">Bio</label>
+                        <textarea class="form-control" id="bio" name="bio" rows="3" placeholder="Tell us about yourself...">{{ current_user.bio }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="profile_pic" class="form-label">Profile Picture</label>
+                        <input type="file" class="form-control" id="profile_pic" name="profile_pic" accept="image/*">
+                        <div class="form-text">Upload a new profile picture (JPG, PNG files only).</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Delete Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Warning:</strong> This action cannot be undone.
+                </div>
+                <p>Are you sure you want to delete your account? This will permanently remove all your data including:</p>
+                <ul>
+                    <li>Profile information</li>
+                    <li>Order history</li>
+                    <li>Reviews</li>
+                    <li>Skin analysis results</li>
+                </ul>
+                <form id="delete-account-form" method="POST" action="{{ url_for('delete_account') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="password_confirm" class="form-label">Enter your password to confirm</label>
+                        <input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="confirm_deletion" name="confirm_deletion" required>
+                        <label class="form-check-label" for="confirm_deletion">
+                            I understand that this action cannot be undone
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="document.getElementById('delete-account-form').submit();">Delete Account</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
