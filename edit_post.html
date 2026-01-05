@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Blog Post - PurelyYou{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="mb-4">Edit Blog Post</h1>
+            
+            <form method="POST" action="{{ url_for('edit_blog_post', post_id=blog_post.id) }}" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    {{ form.title(class="form-control", placeholder="Enter post title") }}
+                    {% if form.title.errors %}
+                    <div class="text-danger">
+                        {% for error in form.title.errors %}
+                        <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="category" class="form-label">Category</label>
+                    {{ form.category(class="form-select") }}
+                    {% if form.category.errors %}
+                    <div class="text-danger">
+                        {% for error in form.category.errors %}
+                        <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="content" class="form-label">Content</label>
+                    {{ form.content(class="form-control", rows=10, placeholder="Write your blog post content here...") }}
+                    {% if form.content.errors %}
+                    <div class="text-danger">
+                        {% for error in form.content.errors %}
+                        <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="image" class="form-label">Featured Image</label>
+                    {% if blog_post.image_url %}
+                    <div class="mb-2">
+                        <img src="{{ blog_post.image_url }}" class="img-fluid rounded" alt="Current featured image" 
+                             style="max-height: 200px;">
+                        <div class="form-text">Current featured image</div>
+                    </div>
+                    <div class="form-check mb-2">
+                        {{ form.keep_image(class="form-check-input") }}
+                        <label class="form-check-label" for="keep_image">Keep current image</label>
+                    </div>
+                    {% endif %}
+                    
+                    {{ form.image(class="form-control") }}
+                    <div class="form-text">Upload a new image to replace the current one.</div>
+                    {% if form.image.errors %}
+                    <div class="text-danger">
+                        {% for error in form.image.errors %}
+                        <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3 form-check">
+                    {{ form.is_published(class="form-check-input") }}
+                    <label class="form-check-label" for="is_published">Published</label>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('view_blog_post', slug=blog_post.slug) }}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Update Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Any specific scripts for editing
+        const keepImageCheckbox = document.getElementById('keep_image');
+        const imageInput = document.getElementById('image');
+        
+        if (keepImageCheckbox && imageInput) {
+            keepImageCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    imageInput.disabled = true;
+                } else {
+                    imageInput.disabled = false;
+                }
+            });
+            
+            // Initialize state
+            if (keepImageCheckbox.checked) {
+                imageInput.disabled = true;
+            }
+        }
+    });
+</script>
+{% endblock %}

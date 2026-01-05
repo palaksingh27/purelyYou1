@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Blog Post - PurelyYou{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="mb-4">Create New Blog Post</h1>
+            
+            <form method="POST" action="{{ url_for('create_blog_post') }}" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    {{ form.title(class="form-control", placeholder="Enter post title") }}
+                    {% if form.title.errors %}
+                    <div class="text-danger">
+                        {% for error in form.title.errors %}
+                        <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="category" class="form-label">Category</label>
+                    {{ form.category(class="form-select") }}
+                    {% if form.category.errors %}
+                    <div class="text-danger">
+                        {% for error in form.category.errors %}
+                        <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="content" class="form-label">Content</label>
+                    {{ form.content(class="form-control", rows=10, placeholder="Write your blog post content here...") }}
+                    {% if form.content.errors %}
+                    <div class="text-danger">
+                        {% for error in form.content.errors %}
+                        <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="image" class="form-label">Featured Image (Optional)</label>
+                    {{ form.image(class="form-control") }}
+                    <div class="form-text">Upload an image to be displayed with your blog post.</div>
+                    {% if form.image.errors %}
+                    <div class="text-danger">
+                        {% for error in form.image.errors %}
+                        <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3 form-check">
+                    {{ form.is_published(class="form-check-input") }}
+                    <label class="form-check-label" for="is_published">Publish immediately</label>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('blog') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Create Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Preview image functionality could be added here
+    });
+</script>
+{% endblock %}
